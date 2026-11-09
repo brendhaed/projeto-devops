@@ -1,0 +1,13 @@
+.aboutImage{
+    width: 250px;
+    height: auto;
+    margin-left: 30px;
+}
+
+/* --- RESPONSIVIDADE --- */
+@media (max-width: 768px) {
+    .about{
+        margin: 50px;
+        padding: 20px;
+    }
+}

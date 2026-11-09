@@ -1,0 +1,19 @@
+.homeImage{
+    width: 300px;
+    height: auto;
+    margin-bottom: 22px;
+}
+
+/* --- RESPONSIVIDADE --- */
+@media (max-width: 768px) {
+    .homepage{
+        margin: 40px;
+        padding: 50px;
+        line-height: 30px;
+    }
+    .homeImage{
+        width: 200px;
+        margin-bottom: 15px;
+    }
+
+} 
