@@ -2,11 +2,13 @@ const express = require("express");
 const fs = require("fs");
 
 var router = express.Router();
-const filePath = "./data/series.json";
+const path = require("path");
+const filePath =
+  process.env.SERIES_DATA_FILE || path.join(__dirname, "../data/series.json");
 
 // Rota para o endpoint GET que lê os dados do arquivo JSON
 router.get("/", (req, res) => {
-  fs.readFile("./data/series.json", "utf8", (err, data) => {
+  fs.readFile(filePath, "utf8", (err, data) => {
     if (err) {
       console.error(err);
       return res.status(500).json({ error: "Erro ao ler arquivo JSON" });
@@ -59,7 +61,8 @@ router.post("/", (req, res) => {
 
 // Rota DELETE para remover uma serie pelo ID
 router.delete("/:id", (req, res) => {
-  const serieId = parseInt(req.params.id);
+  // const serieId = parseInt(req.params.id);
+  const serieId = parseInt(req.params.id, 10);
 
   // Lê o arquivo JSON
   fs.readFile(filePath, "utf8", (err, data) => {
@@ -71,6 +74,11 @@ router.delete("/:id", (req, res) => {
 
     // Remove uma serie do array
     const newseries = series.filter((serie) => serie.id !== serieId);
+    if (newseries.length === series.length) {
+      return res.status(404).json({
+        error: "Série não encontrada",
+      });
+    }
 
     // Escreve os dados atualizados no arquivo JSON
     fs.writeFile(filePath, JSON.stringify(newseries), (err) => {
@@ -85,40 +93,47 @@ router.delete("/:id", (req, res) => {
 
 // Rota PUT para atualizar uma serie
 router.put("/:id", (req, res) => {
+  const serieId = parseInt(req.params.id, 10);
 
   fs.readFile(filePath, "utf8", (err, data) => {
     if (err) {
-      console.error(err);
-      return res.status(500).json({ error: "Erro ao ler arquivo JSON" });
+      return res.status(500).json({
+        error: "Erro ao ler arquivo JSON",
+      });
     }
 
     try {
-      const series = JSON.parse(data); // Transforma o conteúdo em um objeto JavaScript
-      const updatedSerie = req.body; // Obtém o novo objeto de serie a partir do corpo da requisição
+      const series = JSON.parse(data);
 
-      if (series.some((serie) => updatedSerie.id === serie.id)) {
-        // Atualiza a lista de series com o novo dado
-        const updatedSeries = series.map((serie) =>
-          updatedSerie.id === serie.id ? updatedSerie : serie
-        );
+      const serieIndex = series.findIndex((serie) => serie.id === serieId);
 
-        // Escreve o novo conteúdo no arquivo JSON
-        fs.writeFile(filePath, JSON.stringify(updatedSeries), "utf8", (err) => {
-          if (err) {
-            console.error(err);
-            return res
-              .status(500)
-              .json({ error: "Erro ao escrever arquivo JSON" });
-          }
-
-          res.json(updatedSerie); // Retorna a serie atualizada como resposta
+      if (serieIndex === -1) {
+        return res.status(404).json({
+          error: "Série não encontrada",
         });
-      } else {
-        return res.status(404).json({ error: "Serie not found" });
       }
+
+      const updatedSerie = {
+        ...series[serieIndex],
+        ...req.body,
+        id: serieId,
+      };
+
+      series[serieIndex] = updatedSerie;
+
+      fs.writeFile(filePath, JSON.stringify(series), "utf8", (err) => {
+        if (err) {
+          return res.status(500).json({
+            error: "Erro ao escrever arquivo JSON",
+          });
+        }
+
+        res.json(updatedSerie);
+      });
     } catch (err) {
-      console.error(err);
-      return res.status(500).json({ error: "Erro ao analisar arquivo JSON" });
+      return res.status(500).json({
+        error: "Erro ao analisar arquivo JSON",
+      });
     }
   });
 });
