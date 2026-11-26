@@ -1,0 +1,26 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: series-backend
+    ports:
+      - "5000:5000"
+    environment:
+      NODE_ENV: production
+      PORT: 5000
+      SERIES_DATA_FILE: /app/data/series.json
+    volumes:
+      - ./backend/data:/app/data
+
+  frontend:
+  build:
+    context: ./frontend
+    dockerfile: Dockerfile
+    args:
+      NEXT_PUBLIC_API_URL: http://localhost:5000
+  container_name: series-frontend
+  ports:
+    - "3000:3000"
+  depends_on:
+    - backend

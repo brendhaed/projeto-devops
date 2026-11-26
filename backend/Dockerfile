@@ -1,17 +1,23 @@
-# Use a imagem oficial do Node.js como base
-FROM node:14
+# Imagem base do Node.js
+FROM node:20-alpine
 
-# Defina o diretório de trabalho dentro do container
+# Diretório de trabalho
 WORKDIR /app
 
-# Copie o código fonte para o diretório de trabalho
-COPY . /app
+# Copia os arquivos de dependências
+COPY package*.json ./
 
-# Instale as dependências do Node.js
-RUN npm install
+# Instala as dependências
+RUN npm ci
 
-# Expõe a porta 3000 para acesso externo
+# Copia o restante do código
+COPY . .
+
+# Cria o diretório para os dados
+RUN mkdir -p /app/data
+
+# Define a porta da aplicação
 EXPOSE 5000
 
-# Inicie a aplicação com o comando "node app.js" quando o container for executado
-CMD ["node", "./bin/www"]
+# Inicia o servidor
+CMD ["npm", "start"]
