@@ -4,7 +4,7 @@ FROM node:20-alpine
 # Diretório de trabalho
 WORKDIR /app
 
-# Copia os arquivos de dependências
+# Copia os arquivos de dependências 
 COPY package*.json ./
 
 # Instala as dependências

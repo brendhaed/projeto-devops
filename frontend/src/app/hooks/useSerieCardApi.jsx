@@ -1,8 +1,6 @@
 import axios from "axios";
 
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL ||
-  "https://seriejournal-api.onrender.com";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
 const useSerieCards = () => {
   const getSerieCards = async () => {
